@@ -1,0 +1,14 @@
+---
+
+- hosts: master
+  become: True
+  any_errors_fatal: True
+  roles:
+    - role: cluster/facts/prepare
+
+- hosts: master[0]
+  become: True
+  become_user: cluster-facts
+  any_errors_fatal: True
+  roles:
+    - role: cluster/facts/verify

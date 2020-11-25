@@ -1,0 +1,8 @@
+[Unit]
+After=consul.service
+
+[Service]
+Restart=always
+RestartSec=5s
+StartLimitBurst=50
+StartLimitInterval=300s

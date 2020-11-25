@@ -1,0 +1,109 @@
+nauta docker registry에 대한 고찰
+
+docker registry ui
+https://waspro.tistory.com/532
+-> 추 후에 docker registry ui를 nauta에 설치하여 운영해 보자.
+
+
+pod ip list
+10.3.1.112      jup-118-20-03-18-16-13-04-7f857ccb-rl4zg : jupyter exp pod
+10.3.0.55       nauta-registry-nginx-7758979988-92rcf
+10.3.0.62       nauta-docker-registry-575cdb45c6-shbll : exp docker registry server
+10.3.0.63       nauta-registry-1-0-0-oss-20200221134229-sts4x  : nauta docker registry server
+
+{
+"repositories":[
+"nauta/activity-proxy",
+"nauta/argo-controller",
+"nauta/argoexec",
+"nauta/batch-inference",
+"nauta/buildkit",
+"nauta/centos",
+"nauta/dashboard",
+"nauta/defaultbackend",
+"nauta/docker",
+"nauta/docs",
+"nauta/elasticsearch",
+"nauta/elasticsearch/curator",
+"nauta/elasticsearch/proxy",
+"nauta/etcd",
+"nauta/experiment-operator",
+"nauta/fluentd",
+"nauta/gitea",
+"nauta/gui",
+"nauta/horovod/py3",
+"nauta/ingress",
+"nauta/kube-batch",
+"nauta/kubectl",
+"nauta/memcached",
+"nauta/nginx",
+"nauta/openvino-mo",
+"nauta/openvino-ms",
+"nauta/postgres",
+"nauta/pytorch/py3",
+"nauta/pytorch-operator",
+"nauta/redsocks",
+"nauta/registry",
+"nauta/samba",
+"nauta/tensorboard-service",
+"nauta/tensorflow/1.12.0py3/base",
+"nauta/tensorflow",
+"nauta/tf/operator",
+"nauta/tf-serving-sidecar",
+"nauta/tfjob-multinode-sidecar",
+"nauta/tiller"
+]
+}
+
+Digest: sha256:4c7cefd4bb9b5cd9ca116f2c624564e5c44f225dddc6e876d03c8b000adda9d8
+Status: Downloaded newer image for 10.3.0.63:5000/nauta/tensorflow:1.12.0-py3
+10.3.0.63:5000/nauta/tensorflow:1.12.0-py3
+
+REPOSITORY                        TAG                 IMAGE ID            CREATED             SIZE
+10.3.0.63:5000/nauta/tensorflow   1.12.0-py3          5db1bf0b178c        4 weeks ago         2.17GB
+
+Docker image나 pull을 private registry에서 이용하는 경우, private registry에서 https 프로토콜을 지원하지 않거나 사설인증서를 사용하는 경우 아래와 같은 에러가 발생할 수 있다.
+
+root@u-01:~# docker pull abc.iptime.org:5000/helloWorld
+Using default tag: latest
+Error response from daemon: Get https://abc.iptime.org:5000/v1/_ping: http: server gave HTTP response to HTTPS client
+
+
+기본적으로 registry와의 통신은 https 프로토콜을 이용하기 때문인데, 이를 무시하고 http프로토콜을 사용하게 하려면, /etc/default/docker 파일에서 DOCKER_OPTS 항목을 아래와 같이 수정하면 된다.
+
+# /etc/default/docker
+...
+DOCKER_OPTS="--insecure-registry 10.3.0.63:5000"
+...
+
+
+수정 후 docker 서비스를 재시작해준다.
+
+service docker restart
+
+
+출처: https://hakurei.tistory.com/282 [Reimu's Development Blog]
+
+
+Docker Registry Dashboard
+https://waspro.tistory.com/532
+
+1. docker-registry-web을 설치하기 위한 yaml파일 작성
+
+[root@kubemaster docker_image]# cat config.yaml 
+registry:
+ # 기존에 설치한 docker private registry
+ url: http://10.3.0.63:5000/v2
+ # Docker registry name
+ name: 10.3.0.63:5000
+ # docker 권한 부여
+ readonly: false
+ auth:
+ enabled: false
+[root@kubemaster docker_image]#
+
+2. docker-registr
+
+docker run -it -d -p 8080:8080 --name registry-web --link MyPrivate-Docker -v /root/docker_image/config.yaml:/conf/config.yml:ro hyper/docker-registry-web
+
+

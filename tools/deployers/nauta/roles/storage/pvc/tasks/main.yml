@@ -1,0 +1,10 @@
+---
+
+- name: "{{ message_label }} Set storage type"
+  set_fact:
+    detected_storage_type: pvc
+
+- name: "{{ message_label }} Set storage fact"
+  set_fact:
+    calculated_storage:
+      type: "{{ detected_storage_type }}"

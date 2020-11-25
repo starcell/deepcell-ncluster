@@ -1,0 +1,17 @@
+[Unit]
+Description=Kubernetes scheduler
+After=docker.service kubernetes-apiserver.target
+Requires=docker.service kubernetes-apiserver.target
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+LimitNOFILE=65536
+ExecStart=/opt/nauta/kubernetes/kube-scheduler \
+              --kubeconfig=/etc/nauta-cluster/master/kubernetes/kubeconfigs/kube-scheduler.kubeconfig \
+              --v=0 \
+              --leader-elect=true \
+              {{ feature_gates }}
+
+[Install]
+WantedBy=multi-user.target

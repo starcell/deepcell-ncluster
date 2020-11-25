@@ -1,0 +1,87 @@
+---
+
+- name: Create build dir directories
+  file:
+    path: "{{ build_dir }}/{{ item }}"
+    state: directory
+  with_items:
+    - "charts"
+    - "helm-cache"
+    - "output"
+    - "tmp"
+
+- name: Download helm package
+  environment: "{{ proxy }}"
+  get_url:
+    url: "{{ helm_url }}"
+    checksum: "sha256:{{ helm_sha }}"
+    dest: "{{ build_dir }}/helm.tar.gz"
+    mode: 0666
+
+- name: Extract helm tar gz package
+  unarchive:
+    src: "{{ build_dir }}/helm.tar.gz"
+    dest: "{{ build_dir }}"
+    remote_src: yes
+
+- name: Remove unecessary helm tar gz package
+  file:
+    path: "{{ build_dir }}/helm.tar.gz"
+    state: absent
+
+- name: Move helm binary to suitable location
+  copy:
+    src: "{{ build_dir }}/linux-amd64/helm"
+    remote_src: False
+    dest: "{{ build_dir}}/helm"
+    mode: 0755
+
+- name: Remove unecessary files
+  file:
+    path: "{{ build_dir }}/linux-amd64"
+    state: absent
+
+- name: Init helm
+  shell: "{{ helm_local }} init -c --home {{ build_dir }}/helm-cache --skip-refresh"
+
+- name: Unarchive input package
+  shell: "tar -I pigz -xf {{ input_package }} ./facts"
+  args:
+    chdir: "{{ build_dir }}/tmp"
+  when: input_package | default(False)
+
+- name: Set Default fact
+  set_fact:
+    build_facts: {}
+  when: not input_package | default(False)
+
+- name: Load variables
+  include_vars:
+    dir: "{{ build_dir }}/tmp/facts"
+    extensions:
+      - yaml
+      - yml
+    name: build_facts
+  when: input_package | default(False)
+
+- name: Set local url paths
+  vars:
+    name: "{{ item.key }}"
+    url: "{{ item.value.local_url }}"
+  set_fact:
+    image_local_url: "{{ image_local_url | default({}) | combine({name: url}) }}"
+  with_dict: "{{ build_facts.package_attached_images | default({}) }}"
+
+- name: Include charts
+  vars:
+    package_name: "{{ package.key }}"
+    subcharts_list: "{{ package.value }}"
+  include_tasks: chart.yml
+  with_dict: "{{ subcharts }}"
+  loop_control:
+    loop_var: package
+
+- name: Create tar
+  shell: tar -cf {{ output }} --use-compress-program=pigz ./
+  args:
+    chdir: "{{ build_dir }}/output"

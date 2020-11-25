@@ -1,0 +1,60 @@
+---
+
+- name: "{{ message_label }} Ensure that kubeconfig exists"
+  file:
+    path: "{{ runtime_kubeconfig }}"
+
+- name: "{{ message_label }} Ensure exec mod on files"
+  file:
+    path: "{{ item }}"
+    mode: +x
+  with_items:
+    - "{{ runtime_kubectl }}"
+    - "{{ runtime_helm }}"
+    - "{{ runtime_loader }}"
+
+- name: "{{ message_label }} Render envs"
+  set_fact:
+    local_envs: "{{ proxy | default({}) | combine({'KUBECONFIG': runtime_kubeconfig}) }}"
+
+- name: "{{ message_label }} Fetch kubectl config"
+  environment: "{{ local_envs }}"
+  shell: "{{ runtime_kubectl }} config view"
+  register: kubectl_config
+
+- name: "{{ message_label }} Load kubectl config into well formatted variable"
+  set_fact:
+    kubectl_formatted_config: '{{ kubectl_config.stdout | from_yaml | to_json | from_json }}'
+
+- name: "{{ message_label }} Get current-context"
+  set_fact:
+    kubectl_current_context: "{{ kubectl_formatted_config['current-context'] | default('') }}"
+
+- name: "{{ message_label }} Fail if current context is not set"
+  fail:
+    msg: Current context is not set in kubeconfig
+  when: not kubectl_current_context
+
+- name: "{{ message_label }} Get current cluster spec"
+  vars:
+    query: "contexts[?name=='{{ kubectl_current_context }}']"
+  set_fact:
+    kubectl_current_cluster: "{{ (kubectl_formatted_config | json_query(query))[0].context.cluster }}"
+
+- name: "{{ message_label }} Fail if current cluster is not set"
+  fail:
+    msg: Current cluster is not set in kubeconfig
+  when: not kubectl_current_cluster
+
+- name: "{{ message_label }} Get current server"
+  vars:
+    query: "clusters[?name=='{{ kubectl_current_cluster }}']"
+  set_fact:
+    kubectl_current_server: "{{ (kubectl_formatted_config | json_query(query))[0].cluster.server }}"
+
+- name: "{{ message_label }} Fail if current cluster is not set"
+  fail:
+    msg: Current server is not set in kubeconfig
+  when: not kubectl_current_server
+
+- include_tasks: condition.yml

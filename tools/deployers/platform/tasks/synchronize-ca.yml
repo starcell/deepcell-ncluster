@@ -1,0 +1,31 @@
+---
+
+- name: "{{ message_label }} Ensure that node dirs exis"
+  file:
+    path: "/etc/nauta-cluster/master/{{ kind }}/nodes"
+    owner: cluster-master
+    group: cluster-master
+    mode: 0750
+    state: directory
+
+- name: "{{ message_label }} Ensure that dirs exists for each node"
+  file:
+    path: "/etc/nauta-cluster/master/{{ kind }}/nodes/{{ item }}"
+    owner: cluster-master
+    group: cluster-master
+    mode: 0750
+    state: directory
+  with_items: "{{ groups['all'] }}"
+
+- name: "{{ message_label }} Synchronize"
+  become_user: cluster-master
+  shell: "rsync -avhz --delete --progress /etc/nauta-cluster/master/{{ kind }}/ master-cluster-{{ item }}:/etc/nauta-cluster/master/{{ kind }}/"
+  changed_when: False
+  with_items: "{{ groups['master'] }}"
+  when: inventory_hostname != item
+
+- name: "{{ message_label }} Synchronize workers"
+  become_user: cluster-master
+  shell: "rsync -avhz --delete --progress /etc/nauta-cluster/master/{{ kind }}/nodes/{{ item }}/ cluster-{{ item }}:/etc/nauta-cluster/client/{{ kind }}/"
+  changed_when: False
+  with_items: "{{ groups['all'] }}"

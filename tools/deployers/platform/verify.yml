@@ -1,0 +1,20 @@
+---
+
+- name: Verify node access
+  gather_facts: False
+  become: False
+  hosts: all
+  any_errors_fatal: True
+  roles:
+    - role: prepare/verify/access
+    - role: prepare/verify/python
+
+- name: Verify node packages
+  gather_facts: True
+  become: True
+  hosts: all
+  any_errors_fatal: True
+  roles:
+    - role: prepare/verify/repository
+    - role: prepare/verify/envs
+    - role: prepare/python

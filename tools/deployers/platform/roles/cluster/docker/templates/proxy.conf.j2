@@ -1,0 +1,4 @@
+[Service]
+{% for key in proxy.keys() | list | sort %}
+Environment="{{ key }}={{ proxy[key] }}"
+{% endfor %}

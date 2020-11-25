@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    nauta_release: {{ required "NAUTA Release name is required" .Values.global.nauta }}
+    nauta_release_version: {{ required "NAUTA Release version is required" .Values.global.nauta_release }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+      release: {{ .Release.Name }}
+      heritage: {{ .Release.Service }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+    spec:
+      tolerations:
+      - key: "master"
+        operator: "Exists"
+        effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: master
+                operator: In
+                values:
+                - "True"
+      serviceAccountName: {{ .Release.Name }}-{{ .Chart.Name }}
+      containers:
+      - name: heapster
+        image: {{ required "NAUTA Registry is required" .Values.global.nauta_registry }}/{{ required "NAUTA heapster image is required" .Values.image }}
+        imagePullPolicy: IfNotPresent
+        command:
+        - /heapster
+        - "--source=kubernetes.summary_api:''"
+        resources:
+          limits:
+            cpu: 100m
+          requests:
+            cpu: 100m
+            memory: 128Mi

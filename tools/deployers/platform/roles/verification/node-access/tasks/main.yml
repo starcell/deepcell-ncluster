@@ -1,0 +1,55 @@
+---
+
+- include_tasks: condition.yml
+
+- name: "{{ message_label }} Wait for node connection"
+  wait_for_connection:
+    connect_timeout: 5
+    delay: 0
+    sleep: 1
+    timeout: 15
+  register: node_access
+  ignore_errors: True
+
+- name: "{{ message_label }} Fail if node is not accessible (check suggestions)"
+  debug:
+    msg: "Unable to connect via ssh to host {{ ansible_ssh_host | default(ansible_host) }} - please check your network settings"
+  when: node_access is failed
+
+- name: "{{ message_label }} Fail if node is not accessible"
+  fail:
+    msg: "Unable to connect via ssh to host {{ ansible_ssh_host | default(ansible_host) }} - {{ node_access.msg }}"
+  when: node_access is failed
+
+- name: "{{ message_label }} Check if python exists"
+  raw: stat /usr/bin/python2
+  register: python_exists
+  changed_when: python_exists.rc != 0
+  failed_when: False
+
+- name: "{{ message_label }} Fail if we are not able to get system version"
+  fail:
+    msg: "Cannot find python on node {{ ansible_ssh_host | default(ansible_host) }} - please check system requirements"
+  when: python_exists is changed
+
+- name: "{{ message_label }} Collect facts"
+  setup:
+
+- name: "{{ message_label }} Check if system is supported"
+  debug:
+    msg: "Your system is not oficially supported - detected {{ ansible_distribution }} {{ ansible_distribution_version }}"
+  when: ansible_distribution_version not in supported_systems[ansible_distribution] | default([])
+
+- name: "{{ message_label }} Check if enabled_repos is set"
+  debug:
+    msg: "Warning: enabled_repos is not configured, please either install external dependencies locally or provide repository in config using enabled_repos."
+  when: enabled_repos is not defined
+
+- name: "{{ message_label }} Check if regular user is accessible"
+  shell: echo
+  changed_when: False
+
+- name: "{{ message_label }} Check if admin user is accessible"
+  become: True
+  shell: echo
+  changed_when: False

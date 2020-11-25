@@ -1,0 +1,43 @@
+---
+
+- set_fact:
+    repo_local_path: "/root/nauta/repo/{{ nauta_release_package_version }}-{{ nauta_release_package_version_suffix }}-{{ nauta_release_package_release }}"
+
+- name: "{{ message_label }} Ensure repo directory is present"
+  file:
+    path: "{{ repo_local_path }}"
+    state: directory
+
+- name: "{{ message_label }} Copy repository files"
+  vars:
+    file_name: "nauta-{{ item }}-{{ nauta_release_package_version }}.{{ nauta_release_package_version_suffix }}-{{ nauta_release_package_release }}.x86_64.rpm"
+  copy:
+    src: "{{ file_name }}"
+    dest: "{{ repo_local_path }}/{{ file_name }}"
+  with_items:
+    - commons
+    - registry
+    - yum
+    - yum-repository
+
+- name: "{{ message_label }} Install package"
+  include_tasks: yum_static_install.yml
+  vars:
+    packages:
+      - "{{ repo_local_path }}/nauta-commons-{{ nauta_release_package_version }}.{{ nauta_release_package_version_suffix }}-{{ nauta_release_package_release }}.x86_64.rpm"
+    update_cache: True
+  ignore_errors: True
+  register: install_package
+
+- name: "{{ message_label }} Install package failed"
+  debug:
+    msg: "Warning: enabled_repos is not configured, please either install external dependencies locally or provide repository in config using enabled_repos."
+  when: install_package is failed
+
+- name: "{{ message_label }} Install data"
+  include_tasks: yum_static_install.yml
+  vars:
+    packages:
+      - "{{ repo_local_path }}/nauta-yum-repository-{{ nauta_release_package_version }}.{{ nauta_release_package_version_suffix }}-{{ nauta_release_package_release }}.x86_64.rpm"
+      - "{{ repo_local_path }}/nauta-yum-{{ nauta_release_package_version }}.{{ nauta_release_package_version_suffix }}-{{ nauta_release_package_release }}.x86_64.rpm"
+      - "{{ repo_local_path }}/nauta-registry-{{ nauta_release_package_version }}.{{ nauta_release_package_version_suffix }}-{{ nauta_release_package_release }}.x86_64.rpm"

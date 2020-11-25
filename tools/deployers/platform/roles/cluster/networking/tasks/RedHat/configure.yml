@@ -1,0 +1,18 @@
+---
+
+- name: "{{ message_label }} Disable services"
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: False
+  changed_when: False
+  failed_when: False
+  with_items:
+    - firewalld
+
+- name: "{{ message_label }} Remove yum packages"
+  include_tasks: yum_remove.yml
+  vars:
+    packages:
+      - firewall
+      - firewalld

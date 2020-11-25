@@ -1,0 +1,23 @@
+---
+
+- name: "{{ message_label }} Create kubernetes configuration directory"
+  file:
+    path: /root/kubernetes/nodes
+    state: directory
+
+- name: "{{ message_label }} Render all node privileges directories"
+  template:
+    src: kubernetes-node-privs.yml.j2
+    dest: /root/kubernetes/nodes/{{ host }}.yml
+  with_items: "{{ groups['all'] }}"
+  loop_control:
+    loop_var: host
+
+- name: "{{ message_label }} Apply all node privileges directories"
+  changed_when: False
+  environment:
+    KUBECONFIG: /etc/nauta-cluster/master/kubernetes/kubeconfigs/admin.kubeconfig
+  shell: kubectl apply -f /root/kubernetes/nodes/{{ host }}.yml
+  with_items: "{{ groups['all'] }}"
+  loop_control:
+    loop_var: host

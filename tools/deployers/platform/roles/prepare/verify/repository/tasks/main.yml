@@ -1,0 +1,6 @@
+---
+
+- include_tasks: include_distribution.yml
+  vars:
+    distribution_file: local-repository.yml
+

@@ -1,0 +1,382 @@
+---
+
+export_images:
+  - name: tiller
+    value: "{{ image_local_url['nauta/tiller'] }}"
+  - name: tensorboard_service
+    value: "{{ image_local_url['nauta/tensorboard-service'] }}"
+# tensorflow part
+  - name: tensorflow
+    value: "{{ image_local_url['nauta/tensorflow/1.12.0py3/base'] }}"
+  - name: horovod
+    value: "{{ image_local_url['nauta/horovod/py3'] }}"
+  - name: tensorflow_1.12
+    value: "{{ image_local_url['nauta/tensorflow/1.12.0py3/base'] }}"
+  - name: tensorflow_1.12_py3
+    value: "{{ image_local_url['nauta/tensorflow/1.12.0py3/base'] }}"
+  - name: deepcell
+    value: "{{ image_local_url['nauta/anaconda3'] }}"
+  - name: gpu-nvidia
+    value: "{{ image_local_url['nauta/gpu-nvidia'] }}"
+  - name: activity-proxy
+    value: "{{ image_local_url['nauta/activity-proxy'] }}"
+  - name: batch-inference
+    value: "{{ image_local_url['nauta/batch-inference'] }}"
+  - name: tf-serving-sidecar
+    value: "{{ image_local_url['nauta/tf-serving-sidecar'] }}"
+  - name: pytorch
+    value: "{{ image_local_url['nauta/pytorch/py3'] }}"
+  - name: tfjob-multinode-sidecar
+    value: "{{ image_local_url['nauta/tfjob-multinode-sidecar'] }}"
+  - name: openvino-mo
+    value: "{{ image_local_url['nauta/openvino-mo'] }}"
+  - name: openvino-ms
+    value: "{{ image_local_url['nauta/openvino-ms'] }}"
+
+
+local_images:
+  nauta/centos:
+    version: "7.6.1810"
+    method: pull
+    image: "centos:7.6.1810"
+    push: True
+  nauta/kubectl:
+    version: "1.15.3"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/kubectl"
+  nauta/gui:
+    version: "1.1.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/nauta-gui"
+  nauta/elasticsearch:
+    version: "v6.4.0"
+    image: "quay.io/pires/docker-elasticsearch-kubernetes:6.4.0"
+    method: pull
+  nauta/elasticsearch/proxy:
+    version: "1.0.0"
+    required:
+      BASE_IMAGE: "shared/centos/python36"
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/elasticsearch-proxy"
+  nauta/fluentd:
+    version: "v1.3.0"
+    image: "fluent/fluentd-kubernetes-daemonset:v1.3-debian-elasticsearch"
+    method: pull
+  nauta/registry:
+    version: "2.7.1"
+    image: "registry:2"
+    method: pull
+  nauta/samba:
+    version: "1.0.0"
+    required:
+      BASE_IMAGE: "shared/centos/python36"
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/samba"
+  nauta/elasticsearch/curator:
+    version: "v5.5.4"
+    image: "quay.io/pires/docker-elasticsearch-curator:5.5.4"
+    method: pull
+  nauta/etcd:
+    version: "3.3.10"
+    image: "gcr.io/google-containers/etcd-amd64:3.3.10-1"
+    method: pull
+  nauta/tiller:
+    version: "v2.11.0"
+    image: "gcr.io/kubernetes-helm/tiller:v2.11.0"
+    method: pull
+  nauta/redsocks:
+    version: "1.0.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/redsocks"
+  nauta/experiment-operator:
+    version: "1.0.1"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/experiment-operator"
+  nauta/tensorflow/1.12.0py3/base:
+    version: "1.12.0-py3"
+    required:
+      BASE_IMAGE: "shared/run/tensorflow/py3.6"
+      METRICS_IMAGE: "shared/build/metrics"
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/tensorflow/py36"
+    args:
+      TENSORFLOW_VERSION: 1.12.0
+  nauta/tensorflow:
+    version: "1.12.0-py3"
+    required:
+      BASE_IMAGE: "shared/run/tensorflow/py3.6"
+      METRICS_IMAGE: "shared/build/metrics"
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/tensorflow/py36"
+    args:
+      TENSORFLOW_VERSION: 1.12.0
+  nauta/anaconda3:
+    version: "3"
+    required:
+      BASE_IMAGE: "shared/run/anaconda3"
+      METRICS_IMAGE: "shared/build/metrics"
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/tensorflow/anaconda3"
+    args:
+      TENSORFLOW_VERSION: 1.14.0
+  nauta/gpu-nvidia:
+    version: "3"
+    required:
+      BASE_IMAGE: "shared/run/gpu-nvidia"
+      METRICS_IMAGE: "shared/build/metrics"
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/tensorflow/gpu-nvidia"
+    args:
+      TENSORFLOW_VERSION: 2.1.0
+  nauta/horovod/py3:
+    version: "1.9.0-py3"
+    required:
+      BASE_IMAGE: "shared/run/tensorflow/py3.6"
+      METRICS_IMAGE: "shared/build/metrics"
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/horovod/3.6"
+  nauta/nginx:
+    version: "1.13.9"
+    method: pull
+    image: "nginx:1.13.9"
+  nauta/docs:
+    version: "v0.0.1"
+    required:
+      NGINX_IMAGE: "nauta/nginx"
+      BASE_IMAGE: "shared/docs"
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/nauta-docs/"
+    dockerfile: "{{ playbook_dir }}/../../applications/nauta-docs/Dockerfile"
+    args:
+      DOCS_VERSION: "{{ VERSION_MAJOR }}.{{ VERSION_MINOR }}.{{ VERSION_NO }}-{{ NAUTA_COMMIT }}"
+  nauta/tf/operator:
+    version: "v2"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/tf-operator"
+  nauta/docker:
+    version: "18.09"
+    required:
+      DOCKER_CE_RPM_IMAGE: "shared/build/rpm/docker-ce"
+      DOCKER_CE_CLI_RPM_IMAGE: "shared/build/rpm/docker-ce-cli"
+      DOCKER_CONTAINERIO_RPM_IMAGE: "shared/build/rpm/containerd-io"
+      CONTAINER_SELINUX_RPM_IMAGE: "shared/build/rpm/container-selinux"
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/docker"
+  nauta/tfjob-multinode-sidecar:
+    version: "1.0.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/tfjob-multinode-sidecar"
+  nauta/ingress:
+    version: "0.14.0"
+    image: "quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.14.0"
+    BASE_IMAGE: "shared/centos"
+    method: pull
+  nauta/defaultbackend:
+    version: "1.4"
+    image: "gcr.io/google-containers/defaultbackend-amd64:1.4"
+    method: pull
+  nauta/dashboard:
+    version: "v1.8.3"
+    image: "k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3"
+    method: pull
+  nauta/tensorboard-service:
+    version: "v1.0.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/tensorboard-service"
+  nauta/activity-proxy:
+    version: "v1.0.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/activity-proxy"
+  nauta/batch-inference:
+    version: "v1.0.0"
+    required:
+      BASE_IMAGE: "shared/centos/python36"
+      METRICS_IMAGE: "shared/build/metrics"
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/batch-inference"
+  nauta/tf-serving-sidecar:
+    version: "v1.0.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/tf-serving-sidecar"
+  nauta/kube-batch:
+    version: "1.0.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/kube-batch"
+  nauta/gitea:
+    version: "1.9.0"
+    image: "gitea/gitea:1.9.0"
+    method: pull
+  nauta/postgres:
+    version: "11"
+    image: "postgres:11"
+    method: pull
+  nauta/memcached:
+    version: "1.5.6-alpine"
+    image: "memcached:1.5.6-alpine"
+    method: pull
+  nauta/buildkit:
+    version: "master"
+    image: "moby/buildkit:v0.6.1"
+    method: pull
+  nauta/pytorch/py3:
+    version: "1.0"
+    required:
+      METRICS_IMAGE: "shared/build/metrics"
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/pytorch-base/3.7"
+  nauta/pytorch-operator:
+    version: "v0.4.0"
+    image: "gcr.io/kubeflow-images-public/pytorch-operator:v0.4.0"
+    method: pull
+  nauta/argo-controller:
+    version: "v2.2.1"
+    image: "argoproj/workflow-controller:v2.2.1"
+    method: pull
+  nauta/argoexec:
+    version: "v2.2.1"
+    image: "argoproj/argoexec:v2.2.1"
+    method: pull
+  nauta/openvino-mo:  #openvino model optimizer
+    version: "1.5.12-dev"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../nauta-containers/openvino-mo"
+  nauta/openvino-ms:  #openvino model server
+    version: "2019.1.1"
+    image: "intelaipg/openvino-model-server:2019.1.1"
+    method: pull
+
+
+# WARNING
+# setting chart_values will work only if chart does not contain values.yaml file
+subcharts:
+  nauta-registry:
+    registry:
+      version: 2.7.1
+      path: "{{ playbook_dir }}/../../nauta-registry-charts/registry"
+  nauta:
+    gui:
+      version: 1.1.0
+      path: "{{ playbook_dir }}/../../nauta-charts/gui"
+      chart_values:
+        image: "{{ image_local_url['nauta/gui'] }}"
+    admin-account:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/admin-account"
+    experiments:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/experiments"
+    configuration:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/configuration"
+    commons:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/commons"
+      chart_values:
+        docker_image: "{{ image_local_url['nauta/docker'] }}"
+    docker-registry:
+      version: 1.1.1
+      path: "{{ playbook_dir }}/../../nauta-charts/docker-registry"
+      chart_values:
+        image: "{{ image_local_url['nauta/registry'] }}"
+        gc_image: "{{ image_local_url['nauta/kubectl'] }}"
+    kube-batch:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/kube-batch"
+      chart_values:
+        image: "{{ image_local_url['nauta/kube-batch'] }}"
+    elasticsearch:
+      version: 0.0.1
+      path: "{{ playbook_dir }}/../../nauta-charts/elasticsearch"
+      chart_values:
+        image: "{{ image_local_url['nauta/elasticsearch'] }}"
+        init_image: "{{ image_local_url['nauta/centos'] }}"
+        proxy_image: "{{ image_local_url['nauta/elasticsearch/proxy'] }}"
+    elasticsearch-curator:
+      version: 0.0.1
+      path: "{{ playbook_dir }}/../../nauta-charts/elasticsearch-curator"
+      chart_values:
+        image: "{{ image_local_url['nauta/elasticsearch/curator'] }}"
+        init_image: "{{ image_local_url['nauta/centos'] }}"
+    fluentd:
+      version: 0.0.1
+      path: "{{ playbook_dir }}/../../nauta-charts/fluentd"
+      chart_values:
+        image: "{{ image_local_url['nauta/fluentd'] }}"
+        centos_image: "{{ image_local_url['nauta/centos'] }}"
+    samba:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/samba"
+      chart_values:
+        image: "{{ image_local_url['nauta/samba'] }}"
+    redsocks:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/redsocks"
+      conditions: features.redsocks
+      feature_enabled: False
+      chart_values:
+        image: "{{ image_local_url['nauta/redsocks'] }}"
+        Interfaces: cni0
+    registry-nginx:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/registry-nginx"
+      chart_values:
+        image: "{{ image_local_url['nauta/nginx'] }}"
+    experiment-operator:
+      version: 1.0.1
+      path: "{{ playbook_dir }}/../../nauta-charts/experiment-operator"
+      chart_values:
+        image: "{{ image_local_url['nauta/experiment-operator'] }}"
+    tf:
+      version: 0.1.0
+      path: "{{ playbook_dir }}/../../nauta-charts/tf"
+      chart_values:
+        image: "{{ image_local_url['nauta/tf/operator'] }}"
+        tfimage: "{{ image_local_url['nauta/tensorflow/1.12.0py3/base'] }}"
+    ingress:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/ingress"
+      chart_values:
+        image: "{{ image_local_url['nauta/ingress'] }}"
+        defaultbackend_image: "{{ image_local_url['nauta/defaultbackend'] }}"
+    dashboard:
+      version: 0.1.0
+      path: "{{ playbook_dir }}/../../nauta-charts/dashboard"
+      chart_values:
+        image: "{{ image_local_url['nauta/dashboard'] }}"
+    documentation-service:
+      version: 0.0.1
+      path: "{{ playbook_dir }}/../../nauta-charts/documentation-service"
+      chart_values:
+        image: "{{ image_local_url['nauta/docs'] }}"
+    argo-controller:
+      version: 2.2.1
+      path: "{{ playbook_dir }}/../../nauta-charts/argo-controller"
+      chart_values:
+        image: "{{ image_local_url['nauta/argo-controller'] }}"
+        image2: "{{ image_local_url['nauta/argoexec'] }}"
+    gitea:
+      version: 1.6.1
+      path: "{{ playbook_dir }}/../../nauta-charts/gitea"
+      chart_values:
+        image: "{{ image_local_url['nauta/gitea'] }}"
+    buildkit:
+      version: 1.0.0
+      path: "{{ playbook_dir }}/../../nauta-charts/buildkit"
+      chart_values:
+        image: "{{ image_local_url['nauta/buildkit'] }}"
+    pytorch-operator:
+      version: 0.4.0
+      path: "{{ playbook_dir }}/../../nauta-charts/pytorch-operator"
+      chart_values:
+        image: "{{ image_local_url['nauta/pytorch-operator'] }}"

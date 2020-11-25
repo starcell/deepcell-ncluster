@@ -1,0 +1,17 @@
+name: tf1
+channels:
+  - conda-forge
+dependencies:
+  - python=3.6
+  - Pillow=5.4
+  - h5py=2.9
+  - ipykernel=5.1
+  - jupyter=1.0
+  - jupyterlab=2.2.8
+  - matplotlib=3.0
+  - mock=2.0
+  - numpy=1.16
+  - scipy=1.2
+  - scikit-learn=0.20
+  - pandas=0.23
+  - tensorflow=1.14

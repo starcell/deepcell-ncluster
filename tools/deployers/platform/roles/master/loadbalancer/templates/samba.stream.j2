@@ -1,0 +1,4 @@
+server {
+    listen     445;
+    proxy_pass {{ kubernetes_network.svc_list.samba.ip }}:445;
+}

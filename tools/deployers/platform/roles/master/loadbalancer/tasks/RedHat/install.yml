@@ -1,0 +1,31 @@
+---
+
+- name: "{{ message_label }} Install package"
+  include_tasks: yum_nauta_install.yml
+  vars:
+    packages:
+      - nginx-1.13.9
+    handlers:
+      - Reload Systemd
+      - Restart Nginx
+
+- seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
+  when: ansible_selinux.status == "enabled"
+
+- seport:
+    ports: "{{ item }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
+  with_items: "{{ kubernetes_network.external_ports }}"
+  when: ansible_selinux.status == "enabled"
+
+- seport:
+    ports: 443-449
+    proto: tcp
+    setype: http_port_t
+    state: present
+  when: ansible_selinux.status == "enabled"

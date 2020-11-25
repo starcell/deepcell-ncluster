@@ -1,0 +1,24 @@
+[Unit]
+Description=Kubernetes controller
+After=docker.service etcd.service kubernetes-apiserver.target
+Requires=docker.service kubernetes-apiserver.target
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+LimitNOFILE=65536
+ExecStart=/opt/nauta/kubernetes/kube-controller-manager \
+      --service-account-private-key-file /etc/nauta-cluster/master/kubernetes/key/service.key \
+      --use-service-account-credentials \
+      --v 0 --leader-elect \
+      --cluster-cidr {{ kubernetes_network.pod }} \
+      --root-ca-file=/etc/nauta-cluster/master/kubernetes/ca/CA.crt \
+      --cluster-signing-cert-file=/etc/nauta-cluster/master/kubernetes/ca/CA.crt \
+      --cluster-signing-key-file=/etc/nauta-cluster/master/kubernetes/ca/CA.key \
+      --controllers=*,tokencleaner,bootstrapsigner \
+      --kubeconfig=/etc/nauta-cluster/master/kubernetes/kubeconfigs/kube-controller-manager.kubeconfig \
+      --allocate-node-cidrs=true \
+      {{ feature_gates }}
+
+[Install]
+WantedBy=multi-user.target

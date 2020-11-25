@@ -1,0 +1,15 @@
+---
+
+- name: Run local tasks
+  hosts: localhost
+  become: False
+  handlers:
+    - name: Cleanup registry container
+      docker_container:
+        name: "{{ registry_name }}"
+        state: absent
+        timeout: "{{ docker_timeout }}"
+  roles:
+    - role: prepare
+    - role: container-build
+    - role: finalize

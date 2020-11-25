@@ -1,0 +1,43 @@
+---
+
+- include_tasks: include_distribution.yml
+  vars:
+    distribution_file: install.yml
+
+- meta: flush_handlers
+
+- name: "{{ message_label }} Create http configuration path"
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+
+- name: "{{ message_label }} Create docker configuration path"
+  file:
+    path: /etc/docker
+    state: directory
+
+- name: "{{ message_label }} Render proxy configuration"
+  template:
+    src: "{{ item }}.conf.j2"
+    dest: "/etc/systemd/system/docker.service.d/{{ item }}.conf"
+  with_items:
+    - proxy
+    - consul
+  notify:
+    - Reload Systemd
+    - Restart Docker
+
+- name: "{{ message_label }} Render docker configuration"
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+  notify:
+    - Restart Docker
+
+- meta: flush_handlers
+
+- name: "{{ message_label }} Start and enable docker"
+  service:
+    name: docker
+    state: started
+    enabled: True

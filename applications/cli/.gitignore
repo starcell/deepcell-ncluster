@@ -1,0 +1,29 @@
+# PyCharm
+.idea
+
+# Pytest
+.mypy_cache/
+
+# Python things
+.venv
+*.pyc
+__pycache__
+.pytest_cache
+
+# PyInstaller artifacts
+build
+dist
+main.spec
+*.spec
+
+# draft artifacts
+example-python/charts
+example-python/draft.toml
+example-python/Dockerfile
+example-python/.draftignore
+draft.toml
+.draftignore
+nctl-*.tar.gz
+nctl-*.zip
+
+vendor/

@@ -1,0 +1,74 @@
+---
+
+verification_checks:
+  - message: "Param nauta_extra_configuration should be provided as a map with not empty items: input_nfs.path, input_nfs.server, output_nfs.path and output_nfs.server"
+    condition: "{{ nauta_extra_configuration is defined and not (nauta_extra_configuration | string).startswith('{') }}"
+
+  - message: "Param nauta_extra_configuration.input_nfs should be provided as a map with items: input_nfs.path and input_nfs.server"
+    condition: "{{ nauta_extra_configuration is defined and nauta_extra_configuration.input_nfs is not defined }}"
+
+  - message: "Param nauta_extra_configuration.output_nfs should be provided as a map with items: output_nfs.path and output_nfs.server"
+    condition: "{{ nauta_extra_configuration is defined and nauta_extra_configuration.output_nfs is not defined }}"
+
+  - message: "Param nauta_extra_configuration.input_nfs.path should be provided"
+    condition: "{{ nauta_extra_configuration is defined and nauta_extra_configuration.input_nfs is defined and nauta_extra_configuration.input_nfs.path | default('') == '' }}"
+
+  - message: "Param nauta_extra_configuration.input_nfs.server should be provided"
+    condition: "{{ nauta_extra_configuration is defined and nauta_extra_configuration.input_nfs is defined and nauta_extra_configuration.input_nfs.server | default('') == '' }}"
+
+  - message: "Param nauta_extra_configuration.output_nfs.path should be provided"
+    condition: "{{ nauta_extra_configuration is defined and nauta_extra_configuration.output_nfs is defined and nauta_extra_configuration.output_nfs.path | default('') == '' }}"
+
+  - message: "Param nauta_extra_configuration.output_nfs.server should be provided"
+    # yamllint disable-line rule:line-length
+    condition: "{{ nauta_extra_configuration is defined and nauta_extra_configuration.output_nfs is defined and nauta_extra_configuration.output_nfs.server | default('') == '' }}"
+
+  - message: "Param proxy should be provided as a map with items: http_proxy, https_proxy, no_proxy"
+    condition: "{{ proxy is defined and not (proxy | string).startswith('{') }}"
+
+  - message: "Param dns_servers should be provided as list"
+    condition: "{{ dns_servers is defined and not (dns_servers | string).startswith('[') }}"
+
+  - message: "Param dns_search_domains must be defined as list"
+    condition: "{{ dns_search_domains is not defined }}"
+
+  - message: "Param dns_search_domains should be provided as list"
+    condition: "{{ dns_search_domains is defined and not (dns_search_domains | string).startswith('[') }}"
+
+  - message: "Param dns_domains should be provided as list"
+    condition: "{{ dns_domains is defined and not (dns_domains | string).startswith('[') }}"
+
+  - message: "Param insecure_registries should be provided as list"
+    condition: "{{ insecure_registries is defined and not (insecure_registries | string).startswith('[') }}"
+
+  - message: "Param domain should be provided as string"
+    condition: "{{ domain is defined and (domain | join('')) != domain }}"
+
+  - message: "Param k8s_domain should be provided as string"
+    condition: "{{ k8s_domain is defined and (k8s_domain | join('')) != k8s_domain }}"
+
+  - message: "Param nodes_domain should be provided as string"
+    condition: "{{ nodes_domain is defined and (nodes_domain | join('')) != nodes_domain }}"
+
+  - message: "Param enabled_plugins should be provided as list"
+    condition: "{{ enabled_plugins is defined and not (enabled_plugins | string).startswith('[') }}"
+
+  - message: "Param disabled_plugins should be provided as list"
+    condition: "{{ disabled_plugins is defined and not (disabled_plugins | string).startswith('[') }}"
+
+  - message: "Param enabled_repos should be provided as list"
+    condition: "{{ enabled_repos is defined and not (enabled_repos | string).startswith('[') }}"
+
+  - message: "Param disabled_repos should be provided as list"
+    condition: "{{ disabled_repos is defined and not (disabled_repos | string).startswith('[') }}"
+
+  - message: "Param features should be provided as map"
+    condition: "{{ features is defined and not (features | string).startswith('{') }}"
+
+  - message: "Can not find ansible_host or ansible_ssh_host on host."
+    condition: "{{ 'ansible_ssh_host' not in hostvars[inventory_hostname] and 'ansible_host' not in hostvars[inventory_hostname] }}"
+
+  - message: "Inventory hostname contains underscore - {{ inventory_hostname }}"
+    condition: "{{ '_' in inventory_hostname }}"
+
+required_parameters: []

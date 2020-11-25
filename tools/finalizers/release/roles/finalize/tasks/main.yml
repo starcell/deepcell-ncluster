@@ -1,0 +1,34 @@
+---
+
+- name: Copy all deployer files
+  synchronize:
+    src: "{{ deployer }}/"
+    dest: "{{ build_dir }}"
+  notify:
+    - Remove build dir
+
+- name: Ensure release directories exists
+  file:
+    path: "{{ build_dir }}/{{ item }}"
+    state: directory
+  with_items:
+    - nauta
+    - platform
+    - bin
+
+- name: Unpack deployer bins
+  shell: tar -xf {{ item.package }} -I pigz
+  args:
+    chdir: "{{ build_dir }}/{{ item.name }}"
+  with_items:
+    - name: nauta
+      package: "{{ nauta_package }}"
+    - name: platform
+      package: "{{ platform_package }}"
+    - name: bin
+      package: "{{ bin_package }}"
+
+- name: Create package
+  shell: tar -cf {{ output }} -I pigz ./
+  args:
+    chdir: "{{ build_dir }}"

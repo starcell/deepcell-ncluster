@@ -1,0 +1,50 @@
+---
+
+verification_checks:
+  - message: "Param k8s_domain should be provided as string"
+    condition: "{{ k8s_domain is defined and (k8s_domain | join('')) != k8s_domain }}"
+
+  - message: "Param kubernetes_pod_subnet should be provided as string"
+    condition: "{{ kubernetes_pod_subnet is defined and (kubernetes_pod_subnet | join('')) != kubernetes_pod_subnet }}"
+
+  - message: "Param kubernetes_svc_subnet should be provided as string"
+    condition: "{{ kubernetes_svc_subnet is defined and (kubernetes_svc_subnet | join('')) != kubernetes_svc_subnet }}"
+
+  - message: "Param use_system_enabled_repos should be provided as bool (True/False)"
+    condition: "{{ use_system_enabled_repos is defined and use_system_enabled_repos | string not in ['True', 'False'] }}"
+
+  - message: "Param use_system_enabled_plugins should be provided as bool (True/False)"
+    condition: "{{ use_system_enabled_plugins is defined and use_system_enabled_plugins | string not in ['True', 'False'] }}"
+
+  - message: "Param storage_type should be set to auto"
+    condition: "{{ storage_type is defined and storage_type != 'auto' }}"
+
+  - message: "Improper domain in parameter {{ domain }}"
+    condition: "{{ domain | join ('') | regex_search ('^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$') }}"
+
+  - message: "Improper nodes_domain set in parameter {{ nodes_domain }}"
+    condition: "{{ nodes_domain | regex_search ('^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$') }}"
+
+  - message: "Improper k8s_domain set in parameter {{ k8s_domain }}"
+    condition: "{{ k8s_domain | join ('') | regex_search ('^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$') }}"
+
+  - message: "Unable to parse kubernetes_pod_subnet as subnet from value {{ kubernetes_pod_subnet }}"
+    condition: "{{ not kubernetes_pod_subnet | ipaddr }}"
+
+  - message: "Unable to parse kubernetes_svc_subnet as subnet from value {{ kubernetes_svc_subnet }}"
+    condition: "{{ not kubernetes_svc_subnet | ipaddr }}"
+
+  - message: "Subnet for kubernetes_pod_subnet should be more than or equal 16"
+    condition: "{{ kubernetes_pod_subnet | ipaddr('prefix') | int < 16 }}"
+
+  - message: "Subnet for kubernetes_svc_subnet should be more than or equal 16"
+    condition: "{{ kubernetes_svc_subnet | ipaddr('prefix') | int < 16 }}"
+
+  - message: "Subnet for kubernetes_pod_subnet and kubernetes_svc_subnet can not be equal"
+    condition: "{{ kubernetes_pod_subnet == kubernetes_svc_subnet }}"
+
+required_parameters:
+  - local_data_path
+  - local_data_device
+  - internal_interface
+  - external_interface

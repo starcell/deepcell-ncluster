@@ -1,0 +1,13 @@
+package: github.com/NervanaSystems/carbon/applications/loader
+import:
+  - package: k8s.io/client-go
+    version: v7.0.0
+  - package: github.com/docker/docker
+    version: v17.03.2-ce
+    subpackages:
+      - api/types
+      - api/types/container
+      - api/types/strslice
+      - client
+  - package: github.com/docker/go-connections
+    version: 9885905e989f4d8cc9f42d3549c5be9c27e4460d # version from 13 Jan 2019 https://github.com/docker/go-connections/pull/61

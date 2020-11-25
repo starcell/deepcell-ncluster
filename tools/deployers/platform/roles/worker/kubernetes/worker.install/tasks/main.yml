@@ -1,0 +1,5 @@
+---
+
+- include_tasks: include_distribution.yml
+  vars:
+    distribution_file: install.yml

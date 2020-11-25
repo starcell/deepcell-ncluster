@@ -1,0 +1,7 @@
+---
+
+- name: Cleanup cache registry container
+  docker_container:
+    name: "{{ registry_cache_name }}"
+    state: absent
+    timeout: "{{ docker_timeout }}"

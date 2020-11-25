@@ -1,0 +1,46 @@
+---
+
+- name: Create docker registry cache directory
+  file:
+    path: "{{ build_dir }}/../registry_cache"
+    state: directory
+
+- name: Set dir facts for registry cache
+  set_fact:
+    registry_cache_dir: "{{ build_dir }}/../registry_cache"
+
+- name: Register fact
+  set_fact:
+    registry_cache_name: "yum-registry-cache-{{ version }}"
+
+- name: Verify existence of registry cache
+  command: "docker port {{ registry_cache_name }} 5000"
+  register: registry_cache_url
+  ignore_errors: True
+
+- set_fact:
+    docker_repository_cache_registry: "127.0.0.1:{{ registry_cache_url.stdout.split(':')[-1] }}"
+    docker_repository_cache_url: "http://127.0.0.1:{{ registry_cache_url.stdout.split(':')[-1] }}"
+  when: "'Error: No such container' not in registry_cache_url.stderr"
+
+- name: Start cache registry container
+  docker_container:
+    name: "{{ registry_cache_name }}"
+    env: "{{ proxy }}"
+    volumes:
+      - "{{ registry_cache_dir }}:/var/lib/registry"
+    ports:
+      - 5000
+    image: "registry:2"
+    stop_timeout: 0
+    timeout: "{{ docker_timeout }}"
+    restart_policy: no
+    user: "{{ user_id }}"
+    state: started
+  register: newly_created_registry_cache
+  when: "'Error: No such container' in registry_cache_url.stderr"
+
+- set_fact:
+    docker_repository_cache_registry: "127.0.0.1:{{ newly_created_registry_cache.ansible_facts.docker_container.NetworkSettings.Ports['5000/tcp'][0].HostPort }}"
+    docker_repository_cache_url: "http://127.0.0.1:{{ newly_created_registry_cache.ansible_facts.docker_container.NetworkSettings.Ports['5000/tcp'][0].HostPort }}"
+  when: "'Error: No such container' in registry_cache_url.stderr"

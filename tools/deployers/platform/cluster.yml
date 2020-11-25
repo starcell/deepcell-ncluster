@@ -1,0 +1,8 @@
+---
+
+- import_playbook: cluster.networking.yml
+- import_playbook: cluster.ca.yml
+- import_playbook: cluster.facts.yml
+- import_playbook: cluster.consul.yml
+- import_playbook: cluster.cgroup.yml
+- import_playbook: cluster.docker.yml

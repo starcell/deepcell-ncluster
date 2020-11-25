@@ -1,0 +1,129 @@
+---
+
+- include_tasks: include_distribution.yml
+  vars:
+    distribution_file: install.yml
+
+- name: "{{ message_label }} Create consul group"
+  group:
+    name: consul
+
+- name: "{{ message_label }} Create consul user"
+  user:
+    name: consul
+    group: consul
+
+- name: "{{ message_label }} Allow consul to listen on port 53"
+  shell: setcap 'cap_net_bind_service=+ep' /usr/bin/consul
+  changed_when: False
+
+- name: "{{ message_label }} Create consul directories"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: consul
+    group: consul
+    mode: 0750
+  with_items:
+    - /var/consul
+    - /etc/consul
+    - /etc/consul/ssl
+
+- name: "{{ message_label }} Copy ssl keys"
+  copy:
+    remote_src: True
+    src: "/etc/nauta-cluster/client/consul/{{ item }}"
+    dest: "/etc/consul/ssl/{{ item }}"
+    owner: consul
+    group: consul
+    mode: 0640
+  with_items:
+    - ca.pem
+    - node.crt
+    - node.key
+
+- name: "{{ message_label }} Copy consul systemd definition"
+  template:
+    src: consul.service.j2
+    dest: /etc/systemd/system/consul.service
+  notify:
+    - Reload Systemd
+    - Restart Consul
+
+- name: "{{ message_label }} Render configuration"
+  template:
+    src: "{{ item }}.json.j2"
+    dest: "/etc/consul/{{ item }}.json"
+  with_items:
+    - cluster
+    - node
+    - config
+    - dns
+    - agent
+    - ssl
+  notify:
+    - Restart Consul
+
+- name: "{{ message_label }} Render server configuration"
+  template:
+    src: "{{ item }}.json.j2"
+    dest: "/etc/consul/{{ item }}.json"
+  when: inventory_hostname in groups['master']
+  with_items:
+    - server
+    - apiservice
+    - registry
+  notify:
+    - Restart Consul
+
+- meta: flush_handlers
+
+- name: "{{ message_label }} Start and enable consul"
+  service:
+    name: consul
+    state: started
+    enabled: True
+
+- name: "{{ message_label }} Refresh host hostname"
+  hostname:
+    name: "{{ inventory_hostname }}.node.{{ nodes_domain }}.{{ domain }}"
+
+- name: "{{ message_label }} Backup hostname file"
+  copy:
+    src: /etc/hostname
+    dest: /etc/hostname.nauta
+    remote_src: yes
+
+- name: "{{ message_label }} Set hostname pernamently"
+  copy:
+    content: "{{ inventory_hostname }}.node.{{ nodes_domain }}.{{ domain }}"
+    dest: /etc/hostname
+
+- name: "{{ message_label }} Override dhclient resolver"
+  template:
+    src: dhclient.j2
+    dest: /etc/dhclient-enter-hooks
+    mode: 0755
+    owner: root
+    group: root
+
+- name: "{{ message_label }} Remove chattr -i from resolver"
+  file:
+    path: /etc/resolv.conf
+    attr: ""
+
+- name: "{{ meesage_label }} Backup resolv.conf"
+  copy:
+    src: /etc/resolv.conf
+    dest: /etc/resolv.conf.nauta
+    remote_src: yes
+
+- name: "{{ message_label }} Override resolver"
+  template:
+    src: resolv.j2
+    dest: /etc/resolv.conf
+
+- name: "{{ message_label }} Add chattr +i to resolver"
+  file:
+    path: /etc/resolv.conf
+    attr: "i"

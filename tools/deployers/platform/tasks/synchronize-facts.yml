@@ -1,0 +1,10 @@
+---
+
+- name: "{{ message_label }} Synchronize"
+  become_user: cluster-facts
+  shell: "rsync -avhz --delete --progress /etc/nauta-facts/ facts-{{ item }}:/etc/nauta-facts/"
+  changed_when: False
+  with_items: "{{ groups['master'] }}"
+  delegate_to: "{{ groups['master'][0] }}"
+  when:
+    - groups['master'][0] != item

@@ -1,0 +1,41 @@
+---
+
+- name: Ensure directory exists
+  file:
+    path: "{{ image.directory }}"
+
+- name: Ensure dockerfile exists
+  file:
+    path: "{{ image.dockerfile | default(image.directory + '/Dockerfile') }}"
+
+- name: Download all required files
+  get_url:
+    url: "{{ item.src }}"
+    dest: "{{ image.directory }}/{{ item.dest }}"
+    checksum: "sha256:{{ item.checksum }}"
+  with_items: "{{ image.fetch_files | default([]) }}"
+
+- name: List files in directory
+  find:
+    path: "{{ image.directory }}"
+    get_checksum: True
+    recurse: True
+  register: files
+
+- set_fact:
+    dir_sha_list: "{{ files | json_query('files[].checksum') }}"
+
+- name: Stat dockerfile
+  stat:
+    path: "{{ image.dockerfile | default(image.directory + '/Dockerfile') }}"
+  register: image_dockerfile
+
+- set_fact:
+    dir_sha_list: "{{ dir_sha_list + [image_dockerfile.stat.checksum] + [image.version] }}"
+
+- set_fact:
+    dir_sha: "{{ dir_sha_list | sort | unique | sort | join(' ' ) | hash('sha1') }}"
+
+- name: Add image definition
+  set_fact:
+    docker_images_local_tags: "{{ docker_images_local_tags | combine({ name: dir_sha }) }}"

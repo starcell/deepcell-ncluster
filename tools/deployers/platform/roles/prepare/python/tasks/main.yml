@@ -1,0 +1,59 @@
+---
+
+- include_tasks: include_distribution.yml
+  vars:
+    distribution_file: local-repository.yml
+
+- name: "{{ message_label }} Render pip.ini file"
+  template:
+    src: pip.ini.j2
+    dest: /opt/nauta/pip.ini
+
+- name: "{{ message_label }} Install pip core"
+  environment:
+    PIP_CONFIG_FILE: /opt/nauta/pip.ini
+  vars:
+    install_packages:
+      - pip
+      - virtualenv
+      - setuptools
+      - wheel
+  pip:
+    name: "{{ install_packages }}"
+    state: latest
+
+- name: "{{ message_label }} Create virtualenv and upgrade pip inside"
+  environment:
+    PIP_CONFIG_FILE: /opt/nauta/pip.ini
+  vars:
+    install_packages:
+      - pip
+  pip:
+    name: "{{ install_packages }}"
+    state: latest
+    virtualenv: /opt/nauta/python
+    virtualenv_site_packages: True
+    virtualenv_python: "{{ ansible_python_interpreter }}"
+
+- name: "{{ message_label }} Install pip apps"
+  environment:
+    PIP_CONFIG_FILE: /opt/nauta/pip.ini
+  vars:
+    install_packages:
+      - ansible
+      - docker
+      - pyOpenSSL
+  pip:
+    name: "{{ install_packages }}"
+    state: latest
+    virtualenv: /opt/nauta/python
+    virtualenv_site_packages: True
+    virtualenv_python: "{{ ansible_python_interpreter }}"
+
+- name: "{{ message_label }} Ensure that python exists"
+  file:
+    path: "/opt/nauta/python/bin/python2"
+
+- name: "{{ message_label }} Override python variable"
+  set_fact:
+    ansible_python_interpreter: "/opt/nauta/python/bin/python2"

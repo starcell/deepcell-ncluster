@@ -1,0 +1,25 @@
+---
+
+gateway_users:
+  nautaoperator:
+    groups:
+      - docker
+    # yamllint disable-line rule:line-length
+    authorized_key: "ssh-rsa dummykey myaccount@mycompany.com"
+    state: "present"
+
+  nautaadministrator:
+    groups:
+      - docker
+    # yamllint disable-line rule:line-length
+    authorized_key: "ssh-rsa dummykey myaccount@mycompany.com"
+    is_admin: True
+    state: "present"
+
+  nautaremoved:
+    groups:
+      - docker
+    # yamllint disable-line rule:line-length
+    authorized_key: "ssh-rsa dummykey myaccount@mycompany.com"
+    is_admin: True
+    state: "absent"

@@ -1,0 +1,185 @@
+---
+
+common_required:
+  - iptables
+  - libcgroup
+  - libcgroup-tools
+  - libcgroup-devel
+  - selinux-policy >= 3.13.1-23
+  - libseccomp-devel
+  - libtool-ltdl-devel
+  - policycoreutils-python
+  - selinux-policy-targeted >= 3.13.1-102
+  - selinux-policy-base >= 3.13.1-102
+  - libffi-devel
+  - byacc
+  - gcc
+  - gcc-c++
+  - openssl-devel
+  - openssl
+  - vim
+  - git
+  - ebtables
+  - byacc
+  - cifs-utils
+  - ebtables
+  - ethtool
+  - gcc
+  - gcc-c++
+  - git
+  - iproute
+  - iptables
+  - iptables >= 1.4.21
+  - libcgroup
+  - libcgroup-devel
+  - libcgroup-tools
+  - libffi-devel
+  - libseccomp-devel
+  - libtool-ltdl-devel
+  - make
+  - nfs-utils
+  - openssh
+  - openssh-clients
+  - openssl
+  - openssl-devel
+  - policycoreutils-python
+  - python
+  - python-backports
+  - python-backports-ssl_match_hostname
+  - python-devel
+  - python-ipaddress
+  - python-setuptools
+  - rsync
+  - selinux-policy >= 3.13.1-23
+  - selinux-policy-base >= 3.13.1-102
+  - selinux-policy-targeted >= 3.13.1-102
+  - socat
+  - systemd-libs
+  - util-linux
+  - vim
+  - wget
+
+local_images:
+  rpm/python:
+    version: "2.7"
+    required:
+      BASE_IMAGE: "shared/centos/rpm-packer"
+      PYTHON2_PIP_RPM_IMAGE: "shared/build/rpm/python2-pip"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/python"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/docker:
+    version: "18.09"
+    required:
+      DOCKER_CE_RPM_IMAGE: "shared/build/rpm/docker-ce"
+      DOCKER_CE_CLI_RPM_IMAGE: "shared/build/rpm/docker-ce-cli"
+      DOCKER_CONTAINERIO_RPM_IMAGE: "shared/build/rpm/containerd-io"
+      CONTAINER_SELINUX_RPM_IMAGE: "shared/build/rpm/container-selinux"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/docker"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/docker-distribution:
+    version: "2.6.2"
+    required:
+      DOCKER_DISTRIBUTION_RPM_IMAGE: "shared/build/rpm/docker-distribution"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/docker-distribution"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/cni/rpm:
+    version: "v0.7.1"
+    required:
+      BASE_IMAGE: "shared/centos/rpm-packer"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/cni/rpm"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/helm:
+    version: "v2.11.0"
+    required:
+      BASE_IMAGE: "shared/centos/rpm-packer"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/helm"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/kubernetes:
+    version: "v1.15.3"
+    required:
+      BASE_IMAGE: "shared/centos/rpm-packer"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/kubernetes/prepare"
+    push: False
+  rpm/kubernetes/rpm/server:
+    version: "v1.15.3"
+    required:
+      BASE_IMAGE: "rpm/kubernetes"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/kubernetes/rpm/server"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/kubernetes/rpm/worker:
+    version: "v1.15.3"
+    required:
+      BASE_IMAGE: "rpm/kubernetes"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/kubernetes/rpm/worker"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/kubernetes/rpm/client:
+
+    version: "v1.15.3"
+    required:
+      BASE_IMAGE: "rpm/kubernetes"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/kubernetes/rpm/client"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/kubernetes/rpm/all:
+    version: "v1.15.3"
+    required:
+      BASE_IMAGE: "rpm/kubernetes"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/kubernetes/rpm/all"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/nginx/rpm:
+    version: "1.13.9"
+    required:
+      NGINX_RPM_IMAGE: "shared/build/rpm/nginx"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/nginx"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms
+  rpm/consul/rpm:
+    version: "1.0.0"
+    required:
+      CONSUL_SOURCES_IMAGE: "shared/build/consul"
+      BASE_IMAGE: "shared/centos/rpm-packer"
+    method: build
+    directory: "{{ playbook_dir }}/../../rpm-containers/consul"
+    push: False
+    artifacts:
+      - src: /out/*
+        dest: rpms

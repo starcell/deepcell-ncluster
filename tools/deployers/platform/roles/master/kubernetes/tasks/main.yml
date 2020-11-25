@@ -1,0 +1,169 @@
+---
+
+- set_fact:
+    # yamllint disable-line rule:line-length
+    etcd: "{% for host in groups['master'] %}https://{{ hostvars[host].nauta_configuration.network.instance_name }}:2379{%- if not loop.last -%},{%- endif -%}{% endfor %}"
+    # yamllint disable-line rule:line-length
+    feature_gates: "{% if kubernetes_calculated_feature_gates != {} %}--feature-gates {% for key,value in kubernetes_calculated_feature_gates.items() %}{{ key }}={{ value }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}"
+    # yamllint disable-line rule:line-length
+    runtime_config: "{% if kubernetes_calculated_runtime_config != {} %}--runtime-config {% for key,value in kubernetes_calculated_runtime_config.items() %}{{ key }}={{ value }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}"
+
+- include_tasks: include_distribution.yml
+  vars:
+    distribution_file: install.yml
+
+- name: "{{ message_label }} Render healthz script"
+  template:
+    src: kubernetes-check.sh.j2
+    dest: /opt/nauta/kubernetes/check.sh
+    mode: 0755
+
+### Apiserver
+
+- name: "{{ message_label }} Create {{ item }} audit directory"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: cluster
+    mode: 0750
+  with_items:
+    - /var/log/kubernetes-apiserver-audit
+    - /etc/nauta-cluster/master/kubernetes/kubeconfigs
+
+- name: "{{ message_label }} Copy audit config"
+  copy:
+    src: audit.yml
+    dest: /etc/nauta-cluster/master/kubernetes/audit.yml
+
+- name: "{{ message_label }} Copy service templates"
+  template:
+    src: "{{ item }}.service.j2"
+    dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+    - kubernetes-apiserver
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Apiserver
+
+- name: "{{ message_label }} Copy service templates"
+  template:
+    src: "{{ item }}.service.j2"
+    dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+    - kubernetes-apiserver-check
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Apiserver Check
+
+- name: "{{ message_label }} Copy target templates"
+  template:
+    src: "{{ item }}.target.j2"
+    dest: "/etc/systemd/system/{{ item }}.target"
+  with_items:
+    - kubernetes-apiserver
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Apiserver Target
+
+- name: "{{ message_label }} Generate kubeconfigs for controller, scheduler and admin"
+  script: "create_kubeconfig.sh {{ nauta_configuration.internal_interface.ipv4_address }} {{ kubernetes_network.internal_port }} {{ item.filename }} {{ item.username }}"
+  with_items:
+    - { filename: "kube-controller-manager", username: "system:kube-controller-manager" }
+    - { filename: "kube-scheduler", username: "system:kube-scheduler" }
+    - { filename: "admin", username: "admin" }
+
+# Controller
+
+- name: "{{ message_label }} Copy service templates"
+  template:
+    src: "{{ item }}.service.j2"
+    dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+    - kubernetes-controller
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Controller
+
+- name: "{{ message_label }} Copy service templates"
+  template:
+    src: "{{ item }}.service.j2"
+    dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+    - kubernetes-controller-check
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Controller Check
+
+- name: "{{ message_label }} Copy target templates"
+  template:
+    src: "{{ item }}.target.j2"
+    dest: "/etc/systemd/system/{{ item }}.target"
+  with_items:
+    - kubernetes-controller
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Controller Target
+
+# Scheduler
+
+- name: "{{ message_label }} Copy service templates"
+  template:
+    src: "{{ item }}.service.j2"
+    dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+    - kubernetes-scheduler
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Scheduler
+
+- name: "{{ message_label }} Copy service templates"
+  template:
+    src: "{{ item }}.service.j2"
+    dest: "/etc/systemd/system/{{ item }}.service"
+  with_items:
+    - kubernetes-scheduler-check
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Scheduler Check
+
+- name: "{{ message_label }} Copy target templates"
+  template:
+    src: "{{ item }}.target.j2"
+    dest: "/etc/systemd/system/{{ item }}.target"
+  with_items:
+    - kubernetes-scheduler
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Scheduler Target
+
+### Server
+
+- name: "{{ message_label }} Copy target templates"
+  template:
+    src: "{{ item }}.target.j2"
+    dest: "/etc/systemd/system/{{ item }}.target"
+  with_items:
+    - kubernetes-server
+  notify:
+    - Reload Systemd
+    - Restart Kubernetes Server Target
+
+- meta: flush_handlers
+
+- name: "{{ message_label }} Start and enable {{ item }} service"
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: True
+  with_items:
+    - kubernetes-apiserver
+    - kubernetes-apiserver-check
+    - kubernetes-apiserver.target
+    - kubernetes-controller
+    - kubernetes-controller-check
+    - kubernetes-controller.target
+    - kubernetes-scheduler
+    - kubernetes-scheduler-check
+    - kubernetes-scheduler.target
+    - kubernetes-server.target

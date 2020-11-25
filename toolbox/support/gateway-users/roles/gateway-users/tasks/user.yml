@@ -1,0 +1,68 @@
+---
+
+- name: "Set {{ developer_user.key }} presence flag"
+  set_fact:
+    is_present: "{{ developer_user.value.state | default('present') == 'present' }}"
+
+- name: "Create user {{ developer_user.key }}"
+  user:
+    name: "{{ developer_user.key }}"
+    group: "{{ worker_groupname }}"
+    groups: "{{ developer_user.value.groups | join(',') }}"
+    shell: /bin/bash
+    home: "{{ worker_home_prefix }}/{{ developer_user.key }}"
+    state: present
+  when: is_present
+
+- name: "Delete user {{ developer_user.key }}"
+  user:
+    name: "{{ developer_user.key }}"
+    state: absent
+  when: not is_present
+
+- name: "Create .ssh directory for user {{ developer_user.key }}"
+  file:
+    path: "{{ worker_home_prefix }}/{{ developer_user.key }}/.ssh"
+    state: directory
+    owner: "{{ developer_user.key }}"
+    group: "{{ worker_groupname }}"
+    mode: 0700
+  when: is_present
+
+- name: "Check {{ developer_user.key }} ssh config presence"
+  stat:
+    path: "{{ worker_home_prefix }}/{{ developer_user.key }}/.ssh/config"
+  register: sym
+
+- name: "Fill {{ developer_user.key }} user ssh configuration"
+  template:
+    src: ssh_conf.j2
+    dest: "{{ worker_home_prefix }}/{{ developer_user.key }}/.ssh/config"
+    mode: 0600
+    owner: "{{ developer_user.key }}"
+    group: "{{ worker_groupname }}"
+  when: is_present and not sym.stat.exists
+
+- name: "Add authorized key for user {{ developer_user.key }}"
+  authorized_key:
+    user: "{{ developer_user.key }}"
+    state: present
+    key: "{{ developer_user.value.authorized_key }}"
+  when: is_present and developer_user.value.authorized_key is defined
+
+- name: "Add authorized key for user {{ developer_user.key }} as gateway administrator"
+  authorized_key:
+    user: "{{ nauta_admin }}"
+    state: present
+    key: "{{ developer_user.value.authorized_key }}"
+  # yamllint disable-line rule:line-length
+  when: is_present and developer_user.value.authorized_key is defined and (developer_user.value.is_admin | default('False') | bool)
+
+- name: "Create .kube directory for user {{ developer_user.key }}"
+  file:
+    path: "{{ worker_home_prefix }}/{{ developer_user.key }}/.kube"
+    state: directory
+    owner: "{{ developer_user.key }}"
+    group: "{{ worker_groupname }}"
+    mode: 0700
+  when: is_present

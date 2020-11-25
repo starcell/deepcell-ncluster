@@ -1,0 +1,45 @@
+---
+
+local_images:
+  bin/kubectl:
+    version: "1.15.3"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../bin-containers/kubectl"
+    artifacts:
+      - src: /out/*
+        dest: Linux/amd64
+    push: False
+  bin/loader:
+    version: "1.0.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/loader"
+    artifacts:
+      - src: /loader
+        dest: Linux/amd64
+    push: False
+  bin/helm:
+    version: "2.11.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../bin-containers/helm"
+    artifacts:
+      - src: /out/*
+        dest: Linux/amd64
+    push: False
+  bin/ansible:
+    version: "3.6"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../bin-containers/ansible"
+    artifacts:
+      - src: /out/*
+        dest: Linux/amd64/CENTOS/7
+      - src: /out/*
+        dest: Linux/amd64/REDHAT/7.5
+      - src: /out/*
+        dest: Linux/amd64/REDHAT/7.6
+      - src: /requirements.txt
+        dest: pip
+    push: False

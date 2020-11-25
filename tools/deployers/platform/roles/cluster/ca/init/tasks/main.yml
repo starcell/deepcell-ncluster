@@ -1,0 +1,165 @@
+---
+
+- name: "{{ message_label }} Generate root for certs"
+  include_tasks: kind.yml
+  with_items:
+    - kubernetes
+    - api-proxy
+    - consul
+    - etcd
+  loop_control:
+    loop_var: kind
+
+- name: "{{ message_label }} Set domains for apiservice cert"
+  set_fact:
+    subject_alt_name:
+      DNS.1: "{{ kubernetes_network.svc_list.apiservice.consul_name }}"
+      DNS.2: "kubernetes"
+      DNS.3: "kubernetes.default"
+      DNS.4: "kubernetes.default.svc"
+      DNS.5: "kubernetes.default.svc.{{ k8s_domain }}.{{ domain }}"
+      DNS.6: "{{ kubernetes_api_address | default('kubernetes.nauta') }}"
+      IP.1: "{{ kubernetes_network.svc_list.apiservice.ip }}"
+      IP.2: "{{ nauta_configuration.external_interface.ipv4_address }}"
+      IP.3: "{{ nauta_configuration.internal_interface.ipv4_address }}"
+
+- name: "{{ message_label }} Set effective domains for apiservice cert (1)"
+  set_fact:
+    effective_subject_alt_name: "{{ subject_alt_name | combine(dns_names_for_certificate) }}"
+  when: dns_names_for_certificate is defined
+
+- name: "{{ message_label }} Set effective domains for apiservice cert (2)"
+  set_fact:
+    effective_subject_alt_name: "{{ subject_alt_name }}"
+  when: dns_names_for_certificate is not defined
+
+- name: "{{ message_label }} Show domains for apiservice cert"
+  debug:
+    msg: "{{ effective_subject_alt_name }}"
+
+- name: "{{ message_label }} Generate certs for apiservice"
+  include_tasks: cert.yml
+  vars:
+    name: "apiservice"
+    common_name: "{{ kubernetes_network.svc_list.apiservice.consul_name }}"
+    organization_name: "kubernetes"
+    subject_alt_name: "{{ effective_subject_alt_name }}"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+      - nonRepudiation
+    extended_key_usage:
+      - clientAuth
+      - serverAuth
+  with_items:
+    - kubernetes
+    - api-proxy
+  loop_control:
+    loop_var: kind
+
+- name: "{{ message_label }} Generate certs for kube-controller-manager"
+  include_tasks: cert.yml
+  vars:
+    name: "kube-controller-manager"
+    common_name: "system:kube-controller-manager"
+    organization_name: "system:kube-controller-manager"
+    subject_alt_name:
+      DNS.1: "kube-controller-manager"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+      - nonRepudiation
+    extended_key_usage:
+      - clientAuth
+      - serverAuth
+  with_items:
+    - kubernetes
+  loop_control:
+    loop_var: kind
+
+- name: "{{ message_label }} Generate certs for kube-scheduler"
+  include_tasks: cert.yml
+  vars:
+    name: "kube-scheduler"
+    common_name: "system:kube-scheduler"
+    organization_name: "system:kube-scheduler"
+    subject_alt_name:
+      DNS.1: "kube-scheduler"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+      - nonRepudiation
+    extended_key_usage:
+      - clientAuth
+      - serverAuth
+  with_items:
+    - kubernetes
+  loop_control:
+    loop_var: kind
+
+- name: "{{ message_label }} Generate certs for admin"
+  include_tasks: cert.yml
+  vars:
+    name: "admin"
+    common_name: "admin"
+    organization_name: "system:masters"
+    subject_alt_name:
+      DNS.1: "admin"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+      - nonRepudiation
+    extended_key_usage:
+      - clientAuth
+      - serverAuth
+  with_items:
+    - kubernetes
+  loop_control:
+    loop_var: kind
+
+- name: "{{ message_label }} Generate certs for service"
+  include_tasks: cert.yml
+  vars:
+    name: "service"
+    common_name: "service"
+    organization_name: "kubernetes"
+    subject_alt_name:
+      DNS.1: "service"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+      - nonRepudiation
+    extended_key_usage:
+      - clientAuth
+  with_items:
+    - kubernetes
+  loop_control:
+    loop_var: kind
+
+- name: "{{ message_label }} Generate certs for registry"
+  include_tasks: cert.yml
+  vars:
+    name: "registry"
+    common_name: "registry"
+    organization_name: "registry"
+    subject_alt_name:
+      DNS.1: "registry.service.{{ nodes_domain }}.{{ domain }}"
+    key_usage:
+      - digitalSignature
+      - keyEncipherment
+      - nonRepudiation
+    extended_key_usage:
+      - clientAuth
+  with_items:
+    - consul
+  loop_control:
+    loop_var: kind
+
+- include_tasks: synchronize-ca.yml
+  with_items:
+    - kubernetes
+    - api-proxy
+    - consul
+    - etcd
+  loop_control:
+    loop_var: kind

@@ -1,0 +1,16 @@
+---
+
+- name: Load image {{ name }} as "{{ docker_repository_cache_registry }}/{{ docker_version_prefix }}/{{ name }}:{{ docker_images_remote_tags[name] }}"
+  docker_image:
+    name: "{{ docker_repository_cache_registry }}/{{ docker_version_prefix }}/{{ name }}:{{ docker_images_remote_tags[name] }}"
+    pull: True
+    push: False
+    timeout: "{{ docker_timeout }}"
+    force: True
+  register: push_async
+  failed_when: "'ansible_job_id' not in push_async"
+  async: 1800
+  poll: 0
+
+- set_fact:
+    docker_async_tasks: "{{ docker_async_tasks | combine({name: push_async.ansible_job_id}) }}"

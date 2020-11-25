@@ -1,0 +1,148 @@
+---
+
+proxy:
+  http_proxy: "{{ lookup('env','http_proxy') }}"
+  HTTP_PROXY: "{{ lookup('env','http_proxy') }}"
+  https_proxy: "{{ lookup('env','https_proxy') }}"
+  HTTPS_PROXY: "{{ lookup('env','https_proxy') }}"
+  no_proxy: "{{ lookup('env','no_proxy') }}"
+  NO_PROXY: "{{ lookup('env','no_proxy') }}"
+
+images: "{{ shared_images | combine(local_images | default({})) }}"
+
+shared_images:
+  shared/centos:
+    version: "7.6.1810"
+    method: build
+    push: False
+    required: {}
+    directory: "{{ playbook_dir }}/../../shared-containers/centos/core"
+  shared/centos/rpm-packer:
+    version: "7.6.1810"
+    required:
+      BASE_IMAGE: "shared/centos"
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/centos/rpm-packer"
+    push: False
+    args:
+      USER_UID: "{{ user_id }}"
+  shared/centos/python36:
+    version: "3.6"
+    required:
+      BASE_IMAGE: "shared/centos"
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/centos/python36"
+    push: False
+  shared/centos/build-go:
+    version: "1.12.9"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/centos/build-go"
+    push: False
+  shared/run/tensorflow/py3.6:
+    version: "py3"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/tf-base/run/3.6"
+    push: False
+    args:
+      PYTHON_VERSION: 3.6
+  shared/run/anaconda3:
+    version: "anaconda3"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/tf-base/run/anaconda3"
+    push: False
+    args:
+      PYTHON_VERSION: 3.7
+  shared/run/gpu-nvidia:
+    version: "tensorflow:2.1.0-gpu-py3-jupyter"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/tf-base/run/gpu-nvidia"
+    push: False
+    args:
+      PYTHON_VERSION: 3.7
+  shared/build/consul:
+    version: "v1.1.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/consul"
+    push: False
+  shared/build/metrics:
+    version: "2.0.0"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../applications/cli/experiment_metrics"
+    push: False
+  shared/build/rpm/docker-ce:
+    version: "18.09"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/rpm-downloader"
+    push: False
+    args:
+      PACKAGE_NAME: "docker-ce"
+      PACKAGE_VERSION: "18.09"
+  shared/build/rpm/docker-ce-cli:
+    version: "18.09"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/rpm-downloader"
+    push: False
+    args:
+      PACKAGE_NAME: "docker-ce-cli"
+      PACKAGE_VERSION: "18.09"
+  shared/build/rpm/containerd-io:
+    version: "1.2"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/rpm-downloader"
+    push: False
+    args:
+      PACKAGE_NAME: "containerd.io"
+      PACKAGE_VERSION: "1.2"
+  shared/build/rpm/container-selinux:
+    version: "2.107"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/rpm-downloader"
+    push: False
+    args:
+      PACKAGE_NAME: "container-selinux"
+      PACKAGE_VERSION: "2.107"
+  shared/build/rpm/docker-distribution:
+    version: "2.6.2"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/rpm-downloader"
+    push: False
+    args:
+      PACKAGE_NAME: "docker-distribution"
+      PACKAGE_VERSION: "2.6.2"
+  shared/build/rpm/nginx:
+    version: "1.13.9"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/rpm-downloader"
+    push: False
+    args:
+      PACKAGE_NAME: "nginx"
+      PACKAGE_VERSION: "1.13.9"
+  shared/build/rpm/python2-pip:
+    version: "8.1.2"
+    required: {}
+    method: build
+    directory: "{{ playbook_dir }}/../../shared-containers/build/rpm-downloader"
+    push: False
+    args:
+      PACKAGE_NAME: "python2-pip"
+      PACKAGE_VERSION: "8.1.2"
+  shared/docs:
+    version: "v0.0.1"
+    required:
+      BASE_IMAGE: "shared/centos"
+    method: build
+    directory: "{{ playbook_dir }}/../../docs"
+    dockerfile: "{{ playbook_dir }}/../../shared-containers/docs/Dockerfile"
+    push: False

@@ -1,0 +1,10 @@
+---
+
+- name: "{{ message_label }} Verify rsync"
+  include_tasks: yum_nauta_install.yml
+  vars:
+    packages:
+      - docker-ce
+    task_handlers:
+      - Reload Systemd
+      - Restart Docker

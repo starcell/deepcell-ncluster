@@ -1,0 +1,24 @@
+---
+
+- include_tasks: include_distribution.yml
+  vars:
+    distribution_file: install.yml
+
+- name: "{{ message_label }} Ensure registry directory exists"
+  file:
+    path: /opt/nauta/registry
+
+- name: "{{ message_label }} Replace configuration"
+  template:
+    src: registry.yml.j2
+    dest: /etc/docker-distribution/registry/config.yml
+  notify:
+    - Restart Docker Distribution
+
+- meta: flush_handlers
+
+- name: "{{ message_label }} Start and enable docker distribution"
+  service:
+    name: docker-distribution
+    state: started
+    enabled: True
