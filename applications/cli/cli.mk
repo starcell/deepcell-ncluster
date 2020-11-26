@@ -228,7 +228,8 @@ set-version:
 define clone_packs
 	# populate draft/packs with nauta-zoo repo
 	#cd dist/config/packs && git clone https://github.com/IntelAI/nauta-zoo.git && cd nauta-zoo && git checkout $(1) 2> /dev/null || true
-	cd dist/config/packs && git clone https://github.com/nparkstar/nauta-zoo.git && cd nauta-zoo && git checkout $(1) 2> /dev/null || true
+	#cd dist/config/packs && git clone https://github.com/nparkstar/nauta-zoo.git && cd nauta-zoo && git checkout $(1) 2> /dev/null || true
+	cd dist/config/packs && git clone https://github.com/starcell/deepcell-zoo.git && cd nauta-zoo && git checkout $(1) 2> /dev/null || true
 	cd dist/config/packs/nauta-zoo && echo "Using packs from nauta-zoo repository with branch:" && git rev-parse --abbrev-ref HEAD
 	mv dist/config/packs/nauta-zoo/* dist/config/packs/
 	rm -rf dist/config/packs/nauta-zoo
