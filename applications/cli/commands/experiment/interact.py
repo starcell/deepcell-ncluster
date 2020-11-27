@@ -64,7 +64,7 @@ def interact(ctx: click.Context, name: str, filename: str, pack_param: List[Tupl
     Starts an interactive session with Jupyter Notebook.
     """
 
-    if template == "deepcell":
+    if template == "jupyter-deepcell":
         # added by npark
         run_kind_name = RunKinds.DEEPCELL
         # nauta_app_name = NAUTAAppNames.DEEPCELL # web launch를 하기 위해 서비스 프락시를 만들 때 jupyter 이름으로 찾아야 함.
@@ -138,7 +138,7 @@ def interact(ctx: click.Context, name: str, filename: str, pack_param: List[Tupl
         try:
             exp_name = name
             if not name and not filename:
-                if template == "deepcell":
+                if template == "jupyter-deepcell":
                     # added by npark
                     exp_name = generate_name("dc")
                 # elif template == "gpu-nvidia":
