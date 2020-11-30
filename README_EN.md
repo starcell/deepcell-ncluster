@@ -18,9 +18,9 @@ The following are the features currently supported by Deepcell ncluster.
 
 * Tensorflow/CPU : Batch, Jupyter Notebook  
 * Tensorflw/GPU : Batch, Jupyter Notebook  
-* PyTorch/CPU : Batch, Jupyter Notebook(지원예정)  
-* PyTorch/GPU : Batch, Jupyter Notebook(지원예정)  
-* Horovod를 이용한 분산 딥러닝  
+* PyTorch/CPU : Batch, Jupyter Notebook(Scheduled to be supported)  
+* PyTorch/GPU : Batch, Jupyter Notebook(Scheduled to be supported)  
+* Distributed deep learning by using Horovod  
 * TensorBoard  
 * Tensorflow Serving  
 * OpenVINO OpenVINO Model Server
