@@ -23,6 +23,11 @@
 
 현재 GPU를 지원하는 기능이 추가된 상태이며 다른 기능은 나우타와 동일합니다. 나우타에 없는 기능이나 다른 기능에 대한 문서를 먼저 작성하여 공개하고 있습니다. 나우타 기능은 당분간 나우타 문서를 참고 하시기 바랍니다.
 
+# 딥셀 엔클러스터에서 추가된 내용
+딥셀 엔클러스터에서 추가된 내용은 [딥셀 엔클러스터 문서](docs/ncluster/README.md)에 따로 정리되어 있습니다.
+
+# 나우타 문서
+
 To build Nauta installation package and run it smoothly on Google Cloud Platform please follow our [Nauta on Google Cloud Platform - Getting Started](toolbox/providers/gcp/gcp.md). More details on building Nauta artifacts can be found in [How to Build](docs/installation-and-configuration/How_to_Build_Nauta/HBN.md) guide.
 
 To get things up and running quickly please take a look at our [Getting Started](docs/user-guide/actions/getting_started.md) guide.
