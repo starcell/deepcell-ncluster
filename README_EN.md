@@ -16,16 +16,14 @@ In addition, Deepcell ncluster supports deep learning frameworks using GPUs.
 
 The following are the features currently supported by Deepcell ncluster.
 
-Tensorflow/CPU : Batch, Jupyter Notebook
-Tensorflw/GPU : Batch, Jupyter Notebook
-PyTorch/CPU : Batch, Jupyter Notebook(지원예정)
-PyTorch/GPU : Batch, Jupyter Notebook(지원예정)
-Horovod를 이용한 분산 딥러닝
-TensorBoard
-Tensorflow Serving
-OpenVINO OpenVINO Model Server
-
-현재 GPU를 지원하는 기능이 추가된 상태이며 다른 기능은 나우타와 동일합니다. 나우타에 없는 기능이나 다른 기능에 대한 문서를 먼저 작성하여 공개하고 있습니다. 나우타 기능은 당분간 나우타 문서를 참고 하시기 바랍니다.
+* Tensorflow/CPU : Batch, Jupyter Notebook  
+* Tensorflw/GPU : Batch, Jupyter Notebook  
+* PyTorch/CPU : Batch, Jupyter Notebook(지원예정)  
+* PyTorch/GPU : Batch, Jupyter Notebook(지원예정)  
+* Horovod를 이용한 분산 딥러닝  
+* TensorBoard  
+* Tensorflow Serving  
+* OpenVINO OpenVINO Model Server
 
 Currently, GPU support has been added, and other features are the same as Nauta. Documents for functions that are not available in Nauta or changed functions are first written and released. For the Nauta function, please refer to the Nauta documentation for the time being.
 
