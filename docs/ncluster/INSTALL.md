@@ -38,7 +38,8 @@ Ubuntu 16.04:
 
 ## 설치대상 시스템 준비
 
-베어메탈(bare metal) 시스템으로 클러스터를 구성할 경우 현재 Red Hat Enterprise Linux 7.6 또는 CentOS 7.6을 준비해야 합니다.
+베어메탈(bare metal) 시스템으로 클러스터를 구성할 경우 현재 Red Hat Enterprise Linux 7.6 또는 CentOS 7.6을 준비해야 합니다.  
+
 마스터와 워커노드로 구성
 
 - Configured access to the master host over SSH.
@@ -48,8 +49,8 @@ Ubuntu 16.04:
 
 커널 업데이트
 
-데이터 파일 시스템 준비
-
+데이터 파일 시스템 준비  
+  
 ### Data directory
 마스터에만 필요
 
@@ -97,15 +98,15 @@ The `/data` directory _must_ be created on the master node before installation. 
   - vim
   - wget
 
-필요 소프트웨어 설치
-  
-yum -y install byacc cifs-utils ebtables ethtool gcc gcc-c++ git iproute
-yum -y install libcgroup libcgroup-devel libcgroup-tools libffi-devel
-yum -y install libseccomp-devel libtool-ltdl-devel make nfs-utils openssh openssh-clients openssl openssl-devel
-yum -y install policycoreutils-python python python-backports
-yum -y install python-backports-ssl_match_hostname python-devel python-ipaddress python-setuptools rsync
+필요 소프트웨어 설치  
+``` 
+yum -y install byacc cifs-utils ebtables ethtool gcc gcc-c++ git iproute  
+yum -y install libcgroup libcgroup-devel libcgroup-tools libffi-devel  
+yum -y install libseccomp-devel libtool-ltdl-devel make nfs-utils openssh openssh-clients openssl openssl-devel  
+yum -y install policycoreutils-python python python-backports  
+yum -y install python-backports-ssl_match_hostname python-devel python-ipaddress python-setuptools rsync  
 yum -y install socat systemd-libs util-linux vim wget
-
+```
 ### Valid Repositories
 
 설치 대상 시스템에 리포지토리가 정상적으로 설정되어 있으면 설치 작업 중 필요한 소프트웨어를 자동으로 설치 할 수 있다. 그래서 올바른 리포지토리가 등록되어 있는 지 확인하고 등록되지 않았으면 추가 하도록 한다.
@@ -130,20 +131,20 @@ A list of **required** enabled repositories for Centos 7.6, is:
 - Extra Packages for Enterprise (epel) 
 
 ## 설치 작업
-설치용 시스템에서 설처 파일 수정 
-  inventory.yaml
-  config.yam
+설치용 시스템에서 설정 파일 수정  
+- inventory.yaml  
+- config.yam
 
 ENV_INVENTORY 변수에 inventory.yaml 파일이 설정되어 있어야 한다.
 
 ENV_CONFIG 변수에 config.yaml 파일이 설정되어 있어야 한다.
 
-export ENV_INVENTORY=$<absolute path inventory file>
-export ENV_CONFIG=$<absolute path config file>
+export ENV_INVENTORY=$\<absolute path inventory file>  
+export ENV_CONFIG=$\<absolute path config file>
 
-아래 명령을 실행하여 설치 시작
+아래 명령을 실행하여 설치 시작  
   ./installer.sh install
 
 ## 확인
-설치 로그에 실패가 없으면 정상적으로 설치 된 것인다.완료 후 확인
+설치 로그에 실패가 없으면 정상적으로 설치 된 것인다.완료 후 확인  
   kubectl describe --all-namespaces node
