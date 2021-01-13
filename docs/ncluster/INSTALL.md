@@ -6,7 +6,6 @@
 
 ## 설치용 시스템 준비
 
-      
 설치용 시스템 운영체제:
   * Red Hat Enterprise Linux 7.6
   * CentOS 7.6
@@ -14,14 +13,12 @@
   
 ### 설치용 시스템에 있어야 할 소프트웨어:
 
-   
 Red Hat Enterprise Linux 7.6, CentOS 7.6:
   * Python 2.7 and `/usr/bin/python` available
   * Python 3.5
   * sshpass (when password authentication is used)
   * Helm 2.9.1 (the version of a Helm client _must be_ the same as Helm server used by the platform)
    
-  
 Ubuntu 16.04:
   * Python 2.7 and `/usr/bin/python` available
   * Python 3.5
@@ -32,7 +29,6 @@ Ubuntu 16.04:
     - libssl-dev
     - sshpass
   * Helm 2.9.1 (the version of a Helm client _must be_ the same as Helm server used by the platform)
-
 
 ### 딥셀 엔클러스터 패키지 
 
