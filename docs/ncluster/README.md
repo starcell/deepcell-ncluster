@@ -7,7 +7,7 @@
 다음과 같은 템플릿을 추가
 * jupyter-deepcell : anaconda 지원, tensorflow 2.1 지원  
 * jupyter-gpu : nvidia gpu 지원, tesnsorflow 2.1 지원
-  - [GPU 사용 준비](docs/ncluster/GPU-nvidia.md) 참고
+  - [GPU 사용 준비](/docs/ncluster/GPU-nvidia.md) 참고
 
 # 사용 방법(명령어 예)
 ~~~
