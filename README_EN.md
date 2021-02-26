@@ -7,7 +7,7 @@
 
 # deepcell-ncluster
 
-[![banner](docs/deepcell.svg)](http://starcell.co.kr)
+[![banner](docs/deepcell.svg)](http://www.starcell.co.kr)
 
 Starcell Inc. is developing Deepcell ncluster now and provides hardware and other resources related Deepcell ncluser.
 
