@@ -1,3 +1,8 @@
+<p align="center">
+  <span>한국어</span> |
+  <a href="README_EN.md">English</a>
+</p>
+
 # 딥셀-엔클러스터
 
 [![banner](docs/deepcell.svg)](http://starcell.co.kr)
@@ -5,11 +10,6 @@
 딥셀 엔클러스터는 스타셀이 개발하고 있으며 스타셀은 관련된 하드웨어와 여러가지 자원들에 대한 지원을 제공하고 있습니다.
 
 ![Nauta Diagram](docs/nauta.png)
-
-<p align="center">
-  <span>한국어</span> |
-  <a href="README_EN.md">English</a>
-</p>
 
 우선 나우타 문서를 참고 하세요. : https://intelai.github.io/nauta/
 
