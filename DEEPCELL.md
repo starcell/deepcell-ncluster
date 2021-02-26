@@ -1,6 +1,6 @@
 # Deepcell based on Nauta
 
-Deepcell은 Intel Nauta를 기반으로 Deep Learning 전용 클러스터 시스템 구축에 필요한 기능이 추가되었다.
+Deepcell은 Intel Nauta를 기반으로 Deep Learning 전용 클러스터 시스템 구축에 필요한 기능이 추가되었습다.
  
 nauta관련 정보는 이 문서 참고 : https://intelai.github.io/nauta/
 

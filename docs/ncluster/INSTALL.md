@@ -30,9 +30,16 @@ Ubuntu 16.04:
     - sshpass
   * Helm 2.9.1 (the version of a Helm client _must be_ the same as Helm server used by the platform)
 
+Ubuntu 18.04:
+python3 : python version 3.6.9가 기본으로 설치되어 있습니다.
+python 2.7 이 설치되어 있어야 한다.
+  * apt install python
+
+설치 후 nctl verify 할 때 git 필요
+
 ### 딥셀 엔클러스터 패키지 
 
-빌드가 완성된 패키지를 복사하여 아래와 같은 명령으로 압축을 푼다.  
+빌드가 완성된 패키지를 복사하여 아래와 같은 명령으로 압축을 풉니다.  
 
 `nauta-1.1.0-ent-20191010050128.tar.gz -C <destination>`
 
@@ -109,7 +116,7 @@ yum -y install socat systemd-libs util-linux vim wget
 ```
 ### Valid Repositories
 
-설치 대상 시스템에 리포지토리가 정상적으로 설정되어 있으면 설치 작업 중 필요한 소프트웨어를 자동으로 설치 할 수 있다. 그래서 올바른 리포지토리가 등록되어 있는 지 확인하고 등록되지 않았으면 추가 하도록 한다.
+설치 대상 시스템에 리포지토리가 정상적으로 설정되어 있으면 설치 작업 중 필요한 소프트웨어를 자동으로 설치 할 수 있습니다. 그래서 올바른 리포지토리가 등록되어 있는 지 확인하고 등록되지 않았으면 추가 합니다.
 
 #### Repositories List
 
@@ -135,16 +142,18 @@ A list of **required** enabled repositories for Centos 7.6, is:
 - inventory.yaml  
 - config.yam
 
-ENV_INVENTORY 변수에 inventory.yaml 파일이 설정되어 있어야 한다.
+ENV_INVENTORY 변수에 inventory.yaml 파일이 설정되어 있어야 합니다.
 
-ENV_CONFIG 변수에 config.yaml 파일이 설정되어 있어야 한다.
+ENV_CONFIG 변수에 config.yaml 파일이 설정되어 있어야 합니다.
 
 export ENV_INVENTORY=$\<absolute path inventory file>  
 export ENV_CONFIG=$\<absolute path config file>
+
+deprecation_warnings=False
 
 아래 명령을 실행하여 설치 시작  
   ./installer.sh install
 
 ## 확인
-설치 로그에 실패가 없으면 정상적으로 설치 된 것인다.완료 후 확인  
+설치 로그에 실패가 없으면 정상적으로 설치 된 것입니다. 완료 후 확인합니다.  
   kubectl describe --all-namespaces node
