@@ -1,4 +1,4 @@
-<center>한국어 : [English](README_EN.md)</center> 
+한국어 : [English](README_EN.md) 
 
 ---
 
