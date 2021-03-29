@@ -1,7 +1,7 @@
-<center>
+<p align="center">
   <span>한국어</span> |
   <a href="README_EN.md">English</a>
-</center>
+</p>
 
 ---
 
