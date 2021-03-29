@@ -1,7 +1,4 @@
-<p align="center">
-  <span>한국어</span> |
-  <a href="README_EN.md">English</a>
-</p>
+<center>한국어 : [English](README_EN.md)</center> 
 
 ---
 
@@ -34,7 +31,7 @@
 
 # 딥셀 엔클러스터 문서
 
-[딥셀 엔클러스터 문서](docs/ncluster/README.md)가 준비 중입니다. 
+[딥셀 엔클러스터 문서](docs/ncluster/README.md)가 준비 중입니다.
 
 # License
 
