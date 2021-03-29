@@ -1,4 +1,7 @@
-한국어 : [English](README_EN.md) 
+<center>
+  <span>한국어</span> |
+  <a href="README_EN.md">English</a>
+</center>
 
 ---
 
